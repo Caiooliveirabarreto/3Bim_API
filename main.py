@@ -6,9 +6,13 @@ from models import ProdutoDB, AlunoDB
 from schemas import ProdutoCreate, ProdutoResponse, AlunoResponse, AlunoCreate
 from fastapi.middleware.cors import CORSMiddleware
 
-# cria as tabelas, se ainda não existirem
-Base.metadata.create_all(bind=engine)
+# cria as tabelas, se ainda não existirem / verifica se as tabelas existem
 app = FastAPI()
+
+@app.on_event("startup")
+def criar_tabelas():
+    Base.metadata.create_all(bind=engine)
+
 
 app.add_middleware(
     CORSMiddleware,
@@ -97,7 +101,7 @@ def remover_aluno(aluno_id: int, db: Session = Depends(get_db)):
     db.delete(aluno)
     db.commit()
 
-@app.put("/alunos/{aluno_id}", response_model=ProdutoResponse)
+@app.put("/alunos/{aluno_id}", response_model=AlunoResponse)
 def atualizar_produto(
     aluno_id: int, dados: AlunoCreate, db: Session = Depends(get_db)
 ):
